@@ -1,8 +1,8 @@
 import java.util.*;
 
-public class Main {
+public class Practice {
     public static void main(String[] args) {
-        Solution slt = new Solution();
+        Solution solution = new Solution();
 
         //날짜, 약관 배열, 사용자의 약관 동의 히스토리 배열
         String today = "2022.05.19";
@@ -10,14 +10,15 @@ public class Main {
         String[] privacies = {"2021.05.02\tA", "2021.07.01\tB", "2022.02.19\tC", "2022.02.20\tC"};
 
         //결과
-        System.out.println("result : " + Arrays.toString(slt.solution(today, terms, privacies)));
+        System.out.println("result : " + Arrays.toString(solution.solution(today, terms, privacies)));
     }
 }
 
+/*2023-02-06*/
 class Solution {
     public int[] solution(String today, String[] terms, String[] privacies) {
         //오늘 날짜 환산
-        int todayDate = dateCalculator(today);
+        int todayDate = dateCalculator(today.trim());
 
         //전체 약관 map 만들기
         Map<String, Integer> termMap = new HashMap<>();
@@ -29,7 +30,7 @@ class Solution {
         //파기 대상 약관 리스트
         List<Integer> expList = new ArrayList<>();
         for(int i = 0; i < privacies.length; i++) {
-            String[] privacy = privacies[i].split("\t");
+            String[] privacy = privacies[i].trim().split("\t");
             if(termMap.get(privacy[1]) * 28 <= todayDate - dateCalculator(privacy[0])) {
                 expList.add(i + 1);
             }
