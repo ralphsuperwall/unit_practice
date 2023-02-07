@@ -2,7 +2,7 @@ import java.util.*;
 
 public class Practice {
     public static void main(String[] args) {
-        Solution solution = new Solution();
+       /* Solution solution = new Solution();
 
         //날짜, 약관 배열, 사용자의 약관 동의 히스토리 배열
         String today = "2022.05.19";
@@ -10,7 +10,10 @@ public class Practice {
         String[] privacies = {"2021.05.02\tA", "2021.07.01\tB", "2022.02.19\tC", "2022.02.20\tC"};
 
         //결과
-        System.out.println("result : " + Arrays.toString(solution.solution(today, terms, privacies)));
+        System.out.println("result : " + Arrays.toString(solution.solution(today, terms, privacies)));*/
+
+        Calculator calculator = new Calculator();
+        calculator.cal("-4--120/3+-2");
     }
 }
 
@@ -63,7 +66,15 @@ class Solution {
 /*2023-02-07*/
 class Calculator{
     String formula = "-4--120/3+-2";
-    public int cal(String formula){
-        return 0;
+
+    //-4--120/3+-2 계산
+    public void cal(String formula) {
+        formula = formula.replace("--", "+").replace("+-", "-");
+        System.out.println(formula);
     }
+
+
+
+
+
 }
