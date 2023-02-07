@@ -14,23 +14,28 @@ public class Practice {
     }
 }
 
-/*2023-02-06*/
+/*2023-02-07*/
 class Solution {
-    public int[] solution(String today, String[] terms, String[] privacies) {
+    public int[] solution(String today, String[] terms, String[] privacies){
+        return solution(today, terms, privacies, " ");
+    }
+
+    public int[] solution(String today, String[] terms, String[] privacies, String splitter) {
         //오늘 날짜 환산
         int todayDate = dateCalculator(today.trim());
+
 
         //전체 약관 map 만들기
         Map<String, Integer> termMap = new HashMap<>();
         for(int i = 0; i < terms.length; i++) {
-            String[] term = terms[i].trim().split("\t");
+            String[] term = terms[i].trim().split(splitter);
             termMap.put(term[0], Integer.parseInt(term[1]));
         }
 
         //파기 대상 약관 리스트
         List<Integer> expList = new ArrayList<>();
         for(int i = 0; i < privacies.length; i++) {
-            String[] privacy = privacies[i].trim().split("\t");
+            String[] privacy = privacies[i].trim().split(splitter);
             if(termMap.get(privacy[1]) * 28 <= todayDate - dateCalculator(privacy[0])) {
                 expList.add(i + 1);
             }
@@ -52,5 +57,13 @@ class Solution {
         int day = Integer.parseInt(date[2]);
 
         return (year * 12 * 28) + (month * 28) + day;
+    }
+}
+
+/*2023-02-07*/
+class Calculator{
+    String formula = "-4--120/3+-2";
+    public int cal(String formula){
+        return 0;
     }
 }
