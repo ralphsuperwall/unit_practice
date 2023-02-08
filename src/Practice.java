@@ -2,18 +2,9 @@ import java.util.*;
 
 public class Practice {
     public static void main(String[] args) {
-       /* Solution solution = new Solution();
-
-        //날짜, 약관 배열, 사용자의 약관 동의 히스토리 배열
-        String today = "2022.05.19";
-        String[] terms = {"A\t6", "B\t12", "C\t3"};
-        String[] privacies = {"2021.05.02\tA", "2021.07.01\tB", "2022.02.19\tC", "2022.02.20\tC"};
-
-        //결과
-        System.out.println("result : " + Arrays.toString(solution.solution(today, terms, privacies)));*/
 
         Calculator calculator = new Calculator();
-        calculator.cal("-4--120/3+-2");
+        System.out.println(calculator.cal("-4--120/3+-2+129--42-5*6--1000"));
     }
 }
 
@@ -65,16 +56,81 @@ class Solution {
 
 /*2023-02-07*/
 class Calculator{
-    String formula = "-4--120/3+-2";
 
-    //-4--120/3+-2 계산
-    public void cal(String formula) {
+    public int cal(String formula) {
+        //연산자가 2개 연속하는 패턴 처리
         formula = formula.replace("--", "+").replace("+-", "-");
-        System.out.println(formula);
+        //최초 음수 확인 변수
+        boolean minusCheck = false;
+
+        if (formula.startsWith("-")) {
+            formula = formula.substring(1);
+            minusCheck = true;
+        }
+
+        //숫자 추출
+        String[] numArr = formula.split("[+\\-*/]");
+
+        //첫번째 정수가 음수인 경우 별도 처리
+        if(minusCheck) {
+            numArr[0] = "-" + numArr[0];
+        }
+
+        //연산자 추출
+        String[] formArr = formula.split("[0-9]+");
+
+        //정수 - 연산자 - 정수 - 연산자 - 정수 패턴으로 반복 : 연산자의 인덱스와 정수의 인덱스를 활용하여 연산할 수 있음
+
+        //리스트로 변환
+        //정수 리스트
+        List<String> numList = new ArrayList<>(Arrays.asList(numArr));
+        //연산자 리스트
+        List<String> formList = new ArrayList<>(Arrays.asList(formArr));
+
+        //연산자 리스트에서 곱셈, 나눗셈 연산자를 찾아서 연산 후 리스트에서 제거
+        for(int i = 1; i < formList.size(); i++) {
+            if(formList.get(i).equals("*") || formList.get(i).equals("/")) {
+                //연산자 index 1은 정수 index 0, 1을 연산하는데 사용됨
+                int num0 = Integer.parseInt(numList.get(i - 1));
+                int num1 = Integer.parseInt(numList.get(i));
+                int result = 0;
+
+                if(formList.get(i).equals("*")) {
+                    result = num0 * num1;
+                } else {
+                    result = num0 / num1;
+                }
+
+                //연산 결과를 정수 리스트에 저장(기존 값을 제거 후 연산 결과 저장)하고 연산자는 제거
+                numList.set(i - 1, String.valueOf(result));
+                numList.remove(i);
+                formList.remove(i);
+                //연산자가 하나 제거되었기 때문에 기존 연산자 리스트의 인덱스에서 1씩 줄어들었음
+                i--;
+            }
+        }
+
+        //연산자 리스트에서 덧셈, 뺄셈 연산자를 찾아서 순서대로 연산 후 리스트에서 제거
+        for(int i = 1; i < formList.size(); i++) {
+            if(formList.get(i).equals("+") || formList.get(i).equals("-")) {
+                //연산자 index 1은 정수 index 0, 1을 연산하는데 사용됨
+                int num0 = Integer.parseInt(numList.get(i - 1));
+                int num1 = Integer.parseInt(numList.get(i));
+                int result = 0;
+
+                if(formList.get(i).equals("+")) {
+                    result = num0 + num1;
+                } else {
+                    result = num0 - num1;
+                }
+
+                numList.set(i - 1, String.valueOf(result));
+                numList.remove(i);
+                formList.remove(i);
+                i--;
+            }
+        }
+
+        return Integer.parseInt(numList.get(0));
     }
-
-
-
-
-
 }
