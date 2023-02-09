@@ -3,8 +3,8 @@ import java.util.*;
 public class Practice {
     public static void main(String[] args) {
 
-        Calculator calculator = new Calculator();
-        System.out.println(calculator.cal("-4--120/3+-2+129--42-5*6--1000"));
+        Parenthesis parenthesis = new Parenthesis();
+        System.out.println(parenthesis.solution("(()()))()()((((()"));
     }
 }
 
@@ -132,5 +132,40 @@ class Calculator{
         }
 
         return Integer.parseInt(numList.get(0));
+    }
+}
+
+class Parenthesis {
+
+    boolean solution(String s) {
+        boolean answer = true;
+
+        //문자열의 길이가 100000을 초과하거나 (또는 )가 아닌 문자가 포함되어 있으면 false
+        if(s.length() > 100000 || !s.matches("^[\\(\\)]*$")) {
+            return false;
+        }
+
+        //괄호는 반드시 (로 시작
+        if(!s.startsWith("(")) {
+            return false;
+        }
+
+        int left = 0;
+        int right = 0;
+
+        for(int i = 0; i < s.length(); i++){
+            if(s.charAt(i) == '(') {
+                left++;
+
+            }else {
+                right++;
+            }
+        }
+
+        if(left != right) {
+            answer = false;
+        }
+
+        return answer;
     }
 }
