@@ -4,7 +4,7 @@ public class Practice {
     public static void main(String[] args) {
 
         Parenthesis parenthesis = new Parenthesis();
-        System.out.println(parenthesis.solution("(()()))()()((((()"));
+        System.out.println(parenthesis.solution("((()())()))"));
     }
 }
 
@@ -142,27 +142,31 @@ class Parenthesis {
 
         //문자열의 길이가 100000을 초과하거나 (또는 )가 아닌 문자가 포함되어 있으면 false
         if(s.length() > 100000 || !s.matches("^[\\(\\)]*$")) {
-            return false;
+            answer = false;
         }
 
         //괄호는 반드시 (로 시작
         if(!s.startsWith("(")) {
-            return false;
+            answer = false;
         }
 
-        int left = 0;
-        int right = 0;
+        //)가 (보다 많아지는 순간 규칙 위반, (는 아무리 많아져도 )와 마지막에 (와 )의 개수가 같으면 잘 닫힌 괄호
+        int check = 0;
 
         for(int i = 0; i < s.length(); i++){
             if(s.charAt(i) == '(') {
-                left++;
+                check++;
 
             }else {
-                right++;
+                check--;
+            }
+
+            if(check < 0) {
+                answer = false;
             }
         }
 
-        if(left != right) {
+        if(check != 0) {
             answer = false;
         }
 
