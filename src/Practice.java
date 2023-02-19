@@ -1,4 +1,12 @@
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class Practice {
     public static void main(String[] args) {
@@ -167,5 +175,76 @@ class Parenthesis {
         }
 
         return answer;
+    }
+
+
+}
+
+class csvReader{
+    public static void main(String[] args) throws IOException {
+        //CSV 파일 읽기
+        List<String> ipv4Data = csvFileInput("src/resource/ipv4.csv");
+        //CSV 데이터를 가공하여 리스트에 저장
+        List<List<String>> ipv4DataList = new ArrayList<>();
+
+        for(int i = 1; i < ipv4Data.size(); i++) {
+            String[] data = ipv4Data.get(i).split(",");
+            String nationCode = data[1];
+            String ipStart = data[2];
+            String ipEnd = data[3];
+
+            //IP 주소를 10진수로 변환
+            String decimalIpStart = String.valueOf(ipConverter(ipStart));
+            String decimalIpEnd = String.valueOf(ipConverter(ipEnd));
+
+            ipv4DataList.add(Arrays.asList(nationCode, decimalIpStart, decimalIpEnd));
+        }
+
+        String ip = "43.245.96.232";
+        int decimalIp = ipConverter(ip);
+        boolean check = false;
+
+        for(int j = 0; j < ipv4DataList.size(); j++) {
+            List<String> data = ipv4DataList.get(j);
+            String nationCode = data.get(0);
+            int decimalIpStart = Integer.parseInt(data.get(1));
+            int decimalIpEnd = Integer.parseInt(data.get(2));
+
+            if((decimalIp >= decimalIpStart) && (decimalIp <= decimalIpEnd)){
+                System.out.println(nationCode);
+                check = true;
+                break;
+            }
+        }
+
+        if(!check) {
+            System.out.println("no matched data");
+        }
+    }
+
+    //CSV 파일 읽기
+    private static List<String> csvFileInput(String path) {
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader
+                (new FileInputStream(path), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                lines.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return lines;
+    }
+
+    //IP 주소를 10진수로 변환
+    public static int ipConverter(String ip) {
+        String[] ipArr = ip.split("\\.");
+        int a = Integer.parseInt(ipArr[0]);
+        int b = Integer.parseInt(ipArr[1]);
+        int c = Integer.parseInt(ipArr[2]);
+        int d = Integer.parseInt(ipArr[3]);
+
+        return (a * 16777216) + (b * 65536) + (c * 256) + d;
     }
 }
