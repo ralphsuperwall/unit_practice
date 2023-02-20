@@ -190,7 +190,7 @@ class ipFilter {
         List<String> blockNation = Arrays.asList("CN", "RU"); //차단 대상 국가가 중국과 러시아라고 가정하고 hard-coding
 
         //검색하려는 국가 또는 IP를 get으로 받음
-        Map<String, String> urlMap = urlparser("http://example.com/search?nation=KR&ip=103.47.123.220&limit=10");
+        Map<String, String> urlMap = urlparser("http://example.com/search?nation=&ip=185.234.10.210&limit=10");
         String searchNation = null;
         String searchIp = null;
 
@@ -207,25 +207,20 @@ class ipFilter {
         //국가 코드 기반으로 차단 대상 검출
         if(searchNation != null) {
             if (blockNation.contains(searchNation)) {
-                System.out.println("국가 코드 검증 결과 : 차단 대상 국가입니다.");
-                //차단 관련 로직 실행
+                System.out.println("국가 코드 검증 결과 : 차단 대상");
             }else {
-                System.out.println("국가 코드 검증 결과 : 차단 대상 국가가 아닙니다.");
-                //IP 검증 통과
+                System.out.println("국가 코드 검증 결과 : 차단 대상 아님");
             }
         }
 
         //IP 기반으로 차단 대상 검출
         if (searchIp != null) {
             if (blockNation.contains(searchIp)) {
-                System.out.println("IP 검증 결과 : 차단 대상 국가 " + searchIp + "입니다.");
-                //차단 관련 로직 실행
-            }else if(searchIp.equals("not found")) {
-                System.out.println("IP 검증 결과 : 해당 정보로 검색된 국가가 없습니다.");
-                //IP 재입력 요청
+                System.out.println("IP 검증 결과 : 차단 대상 - " + searchIp);
+            }else if(searchIp.equals("XX")) {
+                System.out.println("IP 입력 오류");
             }else {
-                System.out.println("IP 검증 결과 : 차단 대상 국가가 아닙니다.");
-                //IP 검증 통과
+                System.out.println("IP 검증 결과 : " + searchIp + " - 차단 대상 아님");
             }
         }
     }
@@ -251,7 +246,7 @@ class ipFilter {
 
         //입력된 IP가 해당하는 대역 및 국가 코드가 없는 경우
         if(result == null) {
-            result = "NotFound";
+            result = "XX";
         }
 
         return result;
