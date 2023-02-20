@@ -184,15 +184,101 @@ class Parenthesis {
 
 }
 
-class csvReader{
-    public static void main(String[] args) throws IOException {
-        //CSV 파일 읽기
+class ipFilter {
+    public static void main(String[] args) {
+        //FIELD : 차단 대상 국가(예시)
+        List<String> blockNation = Arrays.asList("CN", "RU"); //차단 대상 국가가 중국과 러시아라고 가정하고 hard-coding
+
+        //검색하려는 국가 또는 IP를 get으로 받음
+        Map<String, String> urlMap = urlparser("http://example.com/search?nation=KR&ip=103.47.123.220&limit=10");
+        String searchNation = null;
+        String searchIp = null;
+
+        //국가 코드로 검색한 경우
+        if(urlMap.containsKey("nation")) {
+            searchNation = urlMap.get("nation");
+        }
+
+        //IP로 검색한 경우 -> 국가 코드로 변환
+        if(urlMap.containsKey("ip")) {
+            searchIp = nationCodeConverter(urlMap.get("ip"));
+        }
+
+        //국가 코드 기반으로 차단 대상 검출
+        if(searchNation != null) {
+            if (blockNation.contains(searchNation)) {
+                System.out.println("국가 코드 검증 결과 : 차단 대상 국가입니다.");
+                //차단 관련 로직 실행
+            }else {
+                System.out.println("국가 코드 검증 결과 : 차단 대상 국가가 아닙니다.");
+                //IP 검증 통과
+            }
+        }
+
+        //IP 기반으로 차단 대상 검출
+        if (searchIp != null) {
+            if (blockNation.contains(searchIp)) {
+                System.out.println("IP 검증 결과 : 차단 대상 국가 " + searchIp + "입니다.");
+                //차단 관련 로직 실행
+            }else if(searchIp.equals("not found")) {
+                System.out.println("IP 검증 결과 : 해당 정보로 검색된 국가가 없습니다.");
+                //IP 재입력 요청
+            }else {
+                System.out.println("IP 검증 결과 : 차단 대상 국가가 아닙니다.");
+                //IP 검증 통과
+            }
+        }
+    }
+
+    //CSV 파일을 바탕으로 IP의 대역을 조회하여 국가 코드로 변환
+    public static String nationCodeConverter(String ip) {
         List<String> ipv4Data = csvFileInput("src/resource/ipv4.csv");
-        //CSV 데이터를 가공하여 리스트에 저장
+        List<List<String>> ipv4DataList = csvFileOutput(ipv4Data);
+        int decimalIp = ipConverter(ip);
+        String result = null;
+
+        for(int j = 0; j < ipv4DataList.size(); j++) {
+            List<String> data = ipv4DataList.get(j);
+            String nationCode = data.get(0);
+            int decimalIpStart = Integer.parseInt(data.get(1));
+            int decimalIpEnd = Integer.parseInt(data.get(2));
+
+            if((decimalIp >= decimalIpStart) && (decimalIp <= decimalIpEnd)) {
+                result = nationCode;
+                break;
+            }
+        }
+
+        //입력된 IP가 해당하는 대역 및 국가 코드가 없는 경우
+        if(result == null) {
+            result = "NotFound";
+        }
+
+        return result;
+    }
+
+    /////sub modules/////
+    //CSV 파일 읽기
+    public static List<String> csvFileInput(String path) {
+        List<String> lines = new ArrayList<>();
+        try(BufferedReader br = new BufferedReader(new InputStreamReader
+                (new FileInputStream(path), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                lines.add(line);
+            }
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+        return lines;
+    }
+
+    //CSV 파일을 바로 사용할 수 있는 항목별로 가공된 List<List<String>>으로 변환
+    public static List<List<String>> csvFileOutput(List<String> csvData) {
         List<List<String>> ipv4DataList = new ArrayList<>();
 
-        for(int i = 1; i < ipv4Data.size(); i++) {
-            String[] data = ipv4Data.get(i).split(",");
+        for(int i = 1; i < csvData.size(); i++) {
+            String[] data = csvData.get(i).split(",");
             String nationCode = data[1];
             String ipStart = data[2];
             String ipEnd = data[3];
@@ -203,45 +289,10 @@ class csvReader{
 
             ipv4DataList.add(Arrays.asList(nationCode, decimalIpStart, decimalIpEnd));
         }
-
-        String ip = "43.245.96.232";
-        int decimalIp = ipConverter(ip);
-        boolean check = false;
-
-        for(int j = 0; j < ipv4DataList.size(); j++) {
-            List<String> data = ipv4DataList.get(j);
-            String nationCode = data.get(0);
-            int decimalIpStart = Integer.parseInt(data.get(1));
-            int decimalIpEnd = Integer.parseInt(data.get(2));
-
-            if((decimalIp >= decimalIpStart) && (decimalIp <= decimalIpEnd)){
-                System.out.println(nationCode);
-                check = true;
-                break;
-            }
-        }
-
-        if(!check) {
-            System.out.println("no matched data");
-        }
+        return ipv4DataList;
     }
 
-    //CSV 파일 읽기
-    private static List<String> csvFileInput(String path) {
-        List<String> lines = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader
-                (new FileInputStream(path), StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                lines.add(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return lines;
-    }
-
-    //IP 주소를 10진수로 변환
+    //IP address를 10진수로 변환
     public static int ipConverter(String ip) {
         String[] ipArr = ip.split("\\.");
         int a = Integer.parseInt(ipArr[0]);
@@ -250,5 +301,25 @@ class csvReader{
         int d = Integer.parseInt(ipArr[3]);
 
         return (a * 16777216) + (b * 65536) + (c * 256) + d;
+    }
+
+    //get URL 파라미터들을 map 단위로 파싱
+    public static Map<String, String> urlparser(String url) {
+        Map<String, String> params = new HashMap<>();
+
+        int questionIndex = url.indexOf("?");
+        if(questionIndex != -1) {
+            String query = url.substring(questionIndex + 1);
+            String[] pairs = query.split("&");
+            for(String pair : pairs) {
+                String[] keyValue = pair.split("=");
+                if (keyValue.length == 2) {
+                    String key = keyValue[0];
+                    String value = keyValue[1];
+                    params.put(key, value);
+                }
+            }
+        }
+        return params;
     }
 }
